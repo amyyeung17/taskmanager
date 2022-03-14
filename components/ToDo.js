@@ -1,5 +1,12 @@
-import React, { useState, useEffect, useRef }  from 'react'
+import React, { useState, useEffect, useReducer}  from 'react'
 import s, { css } from 'styled-components'
+import { connect } from 'react-redux'
+
+import { addList, editList, deleteList, cancelDeleteList, 
+  confirmDeleteList, checkList } from '../actions'
+import listlement from '../reducers/listelement'
+
+import ListEle from '../components/ListEle'
 
 const Container = s.div`
   display: grid;
@@ -31,6 +38,9 @@ const ToColoredBase = s.div`
   aspect-ratio: 3 / 4;
 `
 const Title = s.div`
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
   border-bottom: 2px solid black;
   height: 12.5%;
   width: 100%;
@@ -63,6 +73,7 @@ const Point = s.div`
   height: 15%;
   border-bottom: 1.5px solid black;
 `
+
 //check guidelines to medium style 
 const CheckedBox = s.input.attrs(props => ({type:"checkbox"}))`
   type: checkbox;
@@ -70,46 +81,6 @@ const CheckedBox = s.input.attrs(props => ({type:"checkbox"}))`
   border-radius: 4px;
   height: 25%;
   width: 25%;
-`
-const HiddenCheckbox = s.input.attrs({type:"checkbox"})`
-  border: 0;
-  clip: rect(0 0 0 0);
-  clippath: inset(50%);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0; 
-  position: absolute;
-  white-space: nowrap; 
-  width: 1px; 
-`
-const Icon = s.svg`
-  fill: none;
-  stroke: white; 
-  stroke-width: 2px; 
-`
-
-const StyledCheckbox = s.div`
-  display: inline-block; 
-  width: 16px; 
-  height: 16px; 
-  background: ${props => props.checked ? 'salmon' : 'papayawhip'};
-  border-radius: 3px; 
-  transition: all 150ms; 
-
-  ${HiddenCheckbox}:focus + &{
-    box-shadow: 0 0 0 3px pink;
-  }
-
-  ${Icon} {
-    visibility: ${props => props.checked ? 'visible' : 'hidden' }
-  }
-`
-
-
-const CheckContainer = s.div`
-  display: inline-block;
-  vertical-align: middle; 
 `
 
 const TypedText = s.input.attrs(props => ({type:"text"}))`
@@ -124,31 +95,22 @@ const ShowText = s.p`
     color: gray;
   }
 `
-const ToDo = () => {
+const TitleNote = s.h3`
+  font-family: Avenir;
+  font-size: 1.8em;
+`
+
+const ToDo = ({dispatchAddList, dispatchDeleteList, dispatchEditList, 
+              dispatchCancelList, dispatchConfirmDeleteList, dispatchCheckList, listelement}) => {
   const [state, setState] = useState('')
-  const [input, setInput] = useState('')
-  const [notes, setNote] = useState([])
-  const [click, setClick] = useState(true)
-  const [check, setCheck] = useState(true)
+  const [title, setTitle] = useState('')
+  const [erase, setErase] = useState(false)
 
-  const NewNote = ({className, checked, ...props}) => {
-    return (
-      <>
-        <CheckContainer className={className}>
-            <HiddenCheckbox checked={checked} {...props}/>
-            <StyledCheckbox checked={checked}>
-            <Icon viewBox="0 0 24 24">
-                <polyline points ="20 6 9 17 4 12"/>
-              </Icon>
-            </StyledCheckbox>
-        </CheckContainer>
-      </>
-    )
-  }
 
-  useEffect(async () => {
-    console.log(check)
-  }, [state, input, check])
+  useEffect(() => {
+    console.log(listelement)
+    console.log(erase)
+  }, [erase])
 
   return(
     <>
@@ -156,35 +118,30 @@ const ToDo = () => {
         <ToDoBase>
           <ToColoredBase >
             <Title>
-              <Erase> - </Erase>
-              <Add> + </Add>
+              {erase ? <Erase onClick={() => {setErase(!erase); dispatchCancelList()}}> cancel </Erase>
+              : <Erase onClick={() => {setErase(!erase)}}> - </Erase>
+              }
+              <TitleNote> Title </TitleNote>
+              {erase ? <Add onClick={() => {dispatchConfirmDeleteList()}}> delete </Add>
+              : <Add onClick={() => {dispatchAddList('test')}}> + </Add>
+              }
             </Title>
-            <Point>
-              <CheckedBox onChange={() => setCheck(!check)} />
-              <TypedText onChange={event => setInput(event.target.value)}/>
-            </Point>
-            <Point>
-              <CheckedBox />
-              <TypedText onChange={event => setInput(event.target.value)}
-                onMouseEnter={() => setState('hover in')} onMouseLeave={() => setState('hover out')}/>
-            </Point>
-            <Point>
-              {click ? <>
-                <TypedText value={input} onChange={event => setInput(event.target.value)}
-                onMouseEnter={() => setState('hover in')} onMouseLeave={() => setState('hover out')}/>
-                <Finish onClick={() => setClick(!click)}> Finish </Finish>
-              </> : 
-              <>
-                <CheckedBox />
-                <ShowText onClick={() => {setClick(!click)}}> { input } </ShowText>
-              </>}
-            </Point>
-            <Point>
-              <label>
-              <NewNote checked={check} onChange={() => setCheck(!check)} />
-              </label>
-            </Point>
-           
+      
+            {listelement.map((ele, index) => {
+              return(
+                <>
+                  <Point>
+                    <ListEle ele={ele} key={index} erasestate={erase} 
+                      edit={(text, id) => dispatchEditList(text, id)}
+                      deletefun={(id) => dispatchDeleteList(id)}
+                      checkfun={(id) => dispatchCheckList(id)}
+                     />
+                  </Point>
+                </>
+              )
+            })
+
+            }
           </ToColoredBase>
         </ToDoBase>
       </Container>
@@ -192,4 +149,18 @@ const ToDo = () => {
   )
 }
 
-export default ToDo
+const mapDispatchToProps = dispatch => ({
+  dispatchAddList: (text) => dispatch(addList(text)),
+  dispatchEditList: (text, id) => dispatch(editList(text, id)),
+  dispatchDeleteList: (id) => dispatch(deleteList(id)),
+  dispatchCancelList: () => dispatch(cancelDeleteList()),
+  dispatchConfirmDeleteList: () => dispatch(confirmDeleteList()),
+  dispatchCheckList: (id) => dispatch(checkList(id))
+})
+
+const mapStateToProps = state => ({
+  listelement: state.listelement
+})
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(ToDo)
