@@ -5,12 +5,35 @@ Visual guide only
 import React, { useState, useEffect } from 'react'
 import s from 'styled-components'
 
+import { limits } from '../components/Sizes'
+
 const Container = s.div`
   display: grid;
   height: 100vh;
-  grid-template-columns: 12% repeat(12, 1fr) 12%;
+  width: 100vw;
+  max-width: 100%;
+  overflow-x: hidden;
   grid-column-gap: 1%;
-  z-index: -1;
+
+  @media only screen and ${ limits.sm } {
+    grid-column-gap: 16px;
+    grid-template-columns: 16px repeat(8, minmax(52px, 91px)) 16px;
+  }
+
+  @media only screen and ${ limits.smscale } {
+    grid-column-gap: 16px;
+    grid-template-columns: minmax(32px, 184px) repeat(12, 55.3px) minmax(32px, 184px) ;
+  }
+
+  @media only screen and ${ limits.laptopfixed } {
+    grid-column-gap: 16px;
+    grid-template-columns: 184px repeat(12, minmax(55.3px, 78.54px)) 184px;
+  }
+
+  @media only screen and ${ limits.laptop } {
+    grid-column-gap: 24px;
+    grid-template-columns: 1fr repeat(12, 64.66px) 1fr;
+  }
 `
 
 //columns 
@@ -26,6 +49,12 @@ const GridColumn = s.div`
   &.example3 {
     border: 2px solid purple;
   }
+`
+
+const GridBody = s.div`
+  grid-column: 1/ 11;
+  background-color: blue;
+  z-index: 5;
 `
 
 
@@ -52,6 +81,7 @@ const Grid = () => {
           <GridColumn className="example2"/>
           <GridColumn className="example2"/>
           <GridColumn className="example" />
+          
         </Container>
       </div> : null}
     </>

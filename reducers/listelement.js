@@ -1,51 +1,39 @@
-const defaultState = []
+const defaultState = {}
 
 const listelement = (state = defaultState, action) => {
   const {
-    type, text, title, check, color, deletestate, id
+    type, text, check, edit, deletestate, id
   } = action 
+
   switch (type) {
     case 'ADD_LIST':
-      return [
-        ...state, {text, check, color, deletestate, id},
-      ]
+      return {
+        ...state, [id] : {text, check, edit, deletestate, id},
+      }
     case 'DELETE_LIST':
-      return state.map(e => {
-        if (e.id === id) {
-          return {
-            ...e, deletestate: !e.deletestate
-          }
-        }
-        return e
-      })
+      return {
+        ...state, [id]: {...state[id], deletestate: !state[id].deletestate}
+      }
     case 'EDIT_LIST':
-      console.log(id)
-      console.log(state)
-      return state.map(e => {
-        if (e.id === id) {
-          return {
-            ...e, text, id
-          }
-        }
-        return e
-      })
+      return {
+        ...state, [id]: {...state[id], text: text, edit: !edit}
+      }
     case 'CANCEL_DELETE_LIST':
-      return state.map(e => {
-        return {
-          ...e, deletestate: false
-        }
-      })
+      let n = Object.entries(state).reduce((p, [k ,v]) => {
+        return({...p, [k] : {...v, deletestate: false}})
+      }, {})
+      return n
     case 'CONFIRM_DELETE_LIST':
-      return state.filter(e => !e.deletestate)
-    case 'CHECK_LIST':
-      return state.map(e => {
-        if (e.id === id) {
-          return {
-            ...e, check: !e.check
-          }
-        }
-        return e
+      const x = Object.entries(state)
+      const y = x.filter((key) => {
+        return !key[1].deletestate
       })
+      const z = Object.fromEntries(y)
+      return z
+    case 'CHECK_LIST':
+      return {
+        ...state, [id]: {...state[id], check: !state[id].check}
+      }
     default: 
       return state
   } 

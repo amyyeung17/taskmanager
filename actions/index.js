@@ -1,4 +1,5 @@
 let counter = 0
+let notecounter = 0
 
 export const addList = (text) => ({
   type: 'ADD_LIST',
@@ -6,12 +7,13 @@ export const addList = (text) => ({
   id: counter++,
   check: false,
   deletestate: false,
+  edit: false,
 })
 
 export const editList = (text, id) => ({
   type: 'EDIT_LIST',
   text,
-  id
+  id,
 })
 
 export const deleteList = (id) => ({
@@ -30,4 +32,30 @@ export const confirmDeleteList = () => ({
 export const checkList = (id) => ({
   type: 'CHECK_LIST',
   id
+})
+
+export const createNote = (id) => ({
+  type: 'CREATE_NOTE',
+  title: '',
+  listele: [], 
+  id: notecounter++,
+  edit: false,
+})
+
+export const addNote = (id, props) => ({
+  type: 'ADD_NOTE',
+  id,
+  props
+})
+
+export const deleteNote = (id) => ({
+  type: 'DELETE_NOTE',
+  id,
+  props: notecounter--
+})
+
+export const editTitle = (id, name) => ({
+  type: 'EDIT_TITLE',
+  id,
+  name
 })

@@ -1,41 +1,44 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import s from 'styled-components'
 
 import {
   BrowserRouter as Router, Switch, Route, Link, useRouteMatch, useParams, useNavigate
 } from 'react-router-dom'
 
-const MenuButton = s.button`
-  border: 2px solid black; 
-  font-family: Avenir;
-  height: 50px;
-  width: 50px; 
-`
 const MenuOptions = s.button`
-  font-family: Avenir;
-  background-color: white;
-  width: 50%;
+  font-family: Avenir-Medium;
+  font-size: 1rem;
+  color: rgba(0, 0, 0, .8);
+  background-color: rgba(0, 0, 0, 0);
+  border: 0;
+  height: 3.75rem;
+  margin: .5rem;
+  aspect-ratio: 4 / 3;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: .5vh;
+  text-decoration-thickness: 20%;
+  transition: 300ms ease-in-out;
+  
   &:hover {
-    text-decoration: underline;
-    text-decoration-thickness: 20%;
-    text-underline-offset: .5vh;
+    text-decoration-color: black;
   }
 `
-
 const DropdownMenu = s.div`
-  display: ${props => props.click ? "flex" : "none"};
-  flex-direction: column;
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: flex-end;
   border: 2px solid gray; 
-  font-family: Avenir-Heavy; 
-  height: 250px;
-  width: 250px; 
+  height: 4.0rem;
+  width: 100vw;
+  max-width: 100%;
+  background-color: #fcc7b3;
+  margin-bottom: 2rem;
 `
 
-const Menu = () => {
-  const [state, setState] = useState('')
-  const [click, setClick] = useState(false)
+
+const Menu = ({state, setState}) => {
   const navigate = useNavigate()
 
   useEffect(async () =>{
@@ -46,19 +49,26 @@ const Menu = () => {
       case 'calculator':
         navigate('/calculator')
         break
+      case 'timer':
+        navigate('/timer')
+        break
+      case 'credits':
+        navigate('/credits')
+        break
+      case 'stopwatch':
+        navigate('/stopwatch')
+        break
     }
   }, [state])
 
   return (
     <>
-      <MenuButton onClick={() => setClick(!click)}> Menu </MenuButton>
-      <DropdownMenu click={click} >
+ 
+      <DropdownMenu>
         <MenuOptions onClick={() => setState('todo')}> To-Do </MenuOptions>
-        <MenuOptions onClick={() => setState('notes')}> Notes </MenuOptions>
         <MenuOptions onClick={() => setState('timer')}> Timer </MenuOptions>
-        <MenuOptions onClick={() => setState('stopwatch')}> Stopwatch </MenuOptions>
-        <MenuOptions onClick={() => setState('calculator')}> Calculator </MenuOptions>
-        <MenuOptions> Sleep Calculator </MenuOptions>
+        <MenuOptions style={{paddingRight:"1rem"}} onClick={() => setState('stopwatch')}> Stopwatch </MenuOptions>
+        <MenuOptions style={{paddingLeft:"1.5rem"}} onClick={() => setState('calculator')}> Calc </MenuOptions>
         <MenuOptions onClick={() => setState('credits')}> Credits </MenuOptions>
       </DropdownMenu>
     </>
